@@ -8,3 +8,7 @@ edition = "2021"
 [dependencies]
 image = "0.23.14"
 ultraviolet = "0.8.1"
+rand = "0.8.4"
+
+[profile.release]
+debug = true

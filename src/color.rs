@@ -1,17 +1,49 @@
 use std::ops;
+use ultraviolet::Vec3;
 pub struct Color {
     pub r: u8,
     pub g: u8,
     pub b: u8
 }
 
+pub trait IntoU8 {
+    fn into_u8(self) -> u8;
+}
+
+impl IntoU8 for f32 {
+    fn into_u8(self) -> u8 {
+        (self.clamp(0.0, 1.0) * 255.0).floor() as u8
+    }
+}
+
+impl IntoU8 for u8 {
+    fn into_u8(self) -> u8 {
+        self
+    }
+}
+
 impl Color {
-    pub fn new(r: u8, g: u8, b: u8) -> Color {
+    pub fn new<T>(r: T, g: T, b: T) -> Color 
+    where T: IntoU8 
+    {
         Color {
-            r,
-            g,
-            b
+            r: r.into_u8(),
+            g: g.into_u8(),
+            b: b.into_u8()
         }
+    }
+
+    pub fn average_samples(v: Vec3, samples_per_pixel: i32) -> Color {
+        let scale = 1.0 / samples_per_pixel as f32;
+        
+        // gamma correction
+        let scaled_v = Vec3::new(
+            (v.x * scale).sqrt(),
+            (v.y * scale).sqrt(),
+            (v.z * scale).sqrt()
+        );
+
+        Color::from(scaled_v)
     }
 }
 
@@ -51,3 +83,12 @@ impl ops::Add<Color> for Color {
     }
 }
 
+impl From<Vec3> for Color {
+    fn from(v: Vec3) -> Self {
+        Color {
+            r: (256.0 * v.x).clamp(0.0, 255.0) as u8,
+            g: (256.0 * v.y).clamp(0.0, 255.0) as u8,
+            b: (256.0 * v.z).clamp(0.0, 255.0) as u8
+        }
+    }
+}

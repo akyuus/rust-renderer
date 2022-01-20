@@ -1,5 +1,4 @@
 use ultraviolet::vec::{Vec3};
-use super::color;
 
 pub struct Ray {
     pub origin: Vec3,
